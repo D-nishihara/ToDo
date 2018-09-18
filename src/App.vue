@@ -4,10 +4,18 @@
       <input type="text" v-model="textinput" placeholder="タスクを入力">
       <input type="button" v-on:click="insertbutton" value="登録">
       <p class="p-position"><span>{{textinput.length}}</span>文字</p>
-      <div class="div-position" v-for="(todo,idx) in todolist" v-bind:key="(todo,idx)">
-        <input type="checkbox" id="check" v-model="todo.checke">
-        <label for="check">{{todo.name}}</label>
-        <input type="button" v-on:click="deleatebutton(todo,idx)" value="削除">
+      <div class="div-position" v-for="(todo,idx) in todolist" v-bind:key="(todo)">
+        <label>
+            <input type="checkbox" id="check" v-model="todo.checke">
+            <template v-if="todo.edit && todo.checke">
+                <input type="text" v-model="changetextinput" v-on:change="textchange(todo)">
+            </template>
+            <template v-else>
+                {{todo.name}}
+            </template>
+            <input type="button" v-on:click="deletebutton(todo)" value="削除">
+            <input type="button" v-on:click="changebutton(todo)" value="編集">
+        </label>
       </div>
   </div>
 </template>
@@ -17,22 +25,29 @@ export default {
   data() {
     return {
       textinput: '',
+      changetextinput:'',
       todolist: [],
     };
   },
   methods: {
     insertbutton() {
       if (this.textinput === '') return;
-      this.todolist.push({ name: this.textinput, checke: false });
+      this.todolist.push({ name: this.textinput, checke: false, edit: false});
       this.textinput = '';
     },
-    deleatebutton(todo, idx) {
+    deletebutton(todo) {
       if (todo.checke === true) {
-        this.todolist.splice(idx, 1);
-      } else {
-        return;
+        this.todolist = this.todolist.filter( item => item != todo );
       }
     },
+    changebutton(todo) {
+        todo.edit = true;
+    },
+    textchange(todo) {
+        todo.name = this.changetextinput;
+        this.changetextinput = '';
+        todo.edit = false;
+    }
   },
 };
 
